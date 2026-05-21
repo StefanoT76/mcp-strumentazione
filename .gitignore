@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Log e dati generati
+*.log
+*.csv
+
+# Segreti e configurazioni locali
+.env
+.env.local
+GITHUB_TOKEN*
+*.pem
+
+# Documenti di terze parti (manuali HP/Tek)
+*.pdf
+
+# Windows / OneDrive
+desktop.ini
+Thumbs.db
+*.lnk
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
