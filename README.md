@@ -185,8 +185,8 @@ Il rapporto R_caldo/R_freddo misurato con la tensione **vera** è ~7:1, in linea
 
 | Documento | Contenuto |
 |---|---|
-| [Guida TBS2204B](./hp-lab/docs/guida_mcp_tbs2204b_windows.md) | Setup completo del server oscilloscopio su Windows: rete, VISA, server, collegamento a Claude Desktop |
-| [Guida banco HP GPIB](./tbs2204b/docs/guida_mcp_gpib_multistrumento.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter, trasporto HTTP, servizio Windows, sicurezza |
+| [Guida TBS2204B](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) | Setup completo del server oscilloscopio su Windows: rete, VISA, server, collegamento a Claude Desktop |
+| [Guida banco HP GPIB](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter, trasporto HTTP, servizio Windows, sicurezza |
 | [Guida progetto + GitHub](./docs/guida_progetto_mcp_strumentazione_github.md) | Struttura del repo, `.gitignore`, licenza, pubblicazione e workflow git/GitHub |
 | [Guida Claude Code](./docs/guida_claude_code_setup.md) | Installazione di Claude Code, GitHub MCP server, loop di sviluppo codice→commit→push |
 
