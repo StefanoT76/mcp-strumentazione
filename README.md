@@ -26,7 +26,7 @@ Server [Model Context Protocol](https://modelcontextprotocol.io/) per controllar
 | Server | Strumento/i | Trasporto fisico | Trasporto MCP | Doc |
 |---|---|---|---|---|
 | [`tbs2204b/`](./tbs2204b/) | Tektronix TBS2204B (oscilloscopio) | Ethernet / LXI | stdio | [Guida](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) |
-| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) | GPIB (scheda Contec) | streamable-http | [Guida](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) |
+| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (scheda Contec) | streamable-http | [Guida](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.md) |
 
 I due server sono indipendenti: puoi usarne uno solo, entrambi, o collegarli nella stessa sessione di un client MCP.
 
@@ -48,11 +48,11 @@ I due server sono indipendenti: puoi usarne uno solo, entrambi, o collegarli nel
         │  pyvisa-py     │                     │  KI-VISA+Contec  │
         └───────┬────────┘                     └────────┬─────────┘
                 │ TCP/IP (LXI)                          │ GPIB
-        ┌───────▼────────┐              ┌───────────────┼────────────┐
-        │   TBS2204B     │       ┌──────▼──┐    ┌────────▼───┐ ┌──────▼────┐
-        │ 192.168.0.75   │       │HP 6632A │    │ HP 6060B   │ │ HP 5334B  │
-        └────────────────┘       │  PSU    │    │  E-Load    │ │  Counter  │
-                                 └─────────┘    └────────────┘ └───────────┘
+        ┌───────▼────────┐        ┌──────────┬──────────┴─┬───────────┐
+        │   TBS2204B     │   ┌────▼────┐ ┌───▼─────┐ ┌────▼────┐ ┌────▼─────┐
+        │ 192.168.0.75   │   │HP 6632A │ │HP 6060B │ │HP 5334B │ │HP 3457A  │
+        └────────────────┘   │  PSU    │ │ E-Load  │ │ Counter │ │  DMM     │
+                             └─────────┘ └─────────┘ └─────────┘ └──────────┘
 ```
 
 Differenze di progetto fra i due server:
@@ -64,7 +64,7 @@ Differenze di progetto fra i due server:
 | Avvio | lanciato dal client MCP | servizio Windows (NSSM) su PC-LAB |
 | Autenticazione | non necessaria (locale) | bearer token opzionale |
 | Vincolo NumPy | nessuno | `numpy<2` (CPU vecchie del PC-LAB) |
-| Stile dei tool | generici (`measure`, `get_waveform`, `scpi_*`) | per strumento (`psu_*`, `load_*`, `counter_*`) |
+| Stile dei tool | generici (`measure`, `get_waveform`, `scpi_*`) | per strumento (`psu_*`, `load_*`, `counter_*`, `dmm_*`) |
 
 ---
 
@@ -76,19 +76,22 @@ mcp-strumentazione/
 ├── LICENSE
 ├── .gitignore
 ├── docs/
-│   ├── guida_mcp_tbs2204b_windows.md
-│   ├── guida_mcp_gpib_multistrumento_V2.md
-│   ├── guida_progetto_mcp_strumentazione_github.md
-│   ├── guida_claude_code_setup.md
 │   └── img/                   ← grafici generati dai dati di laboratorio
+│       ├── scope_mains_ch2.png
+│       ├── lamp_iv_psu_vs_dmm.png
+│       └── lamp_resistance_vs_voltage.png
 ├── tbs2204b/
 │   ├── README.md
+│   ├── docs/
+│   │   └── guida_mcp_tbs2204b_windows.md
 │   ├── pyproject.toml
 │   ├── server.py
 │   ├── test_connessione.py
 │   └── .env.example
 ├── hp-lab/
 │   ├── README.md
+│   ├── docs/
+│   │   └── guida_mcp_gpib_multistrumento_V2.md
 │   ├── pyproject.toml
 │   ├── server.py
 │   ├── test_strumenti.py
@@ -126,7 +129,7 @@ $env:PSU_ADDR = "5"; $env:LOAD_ADDR = "6"; $env:COUNTER_ADDR = "14"
 python .\server.py                                 # server HTTP su :8000
 ```
 
-I dettagli completi (configurazione di rete/GPIB, firewall, collegamento al client, servizio Windows) sono nelle guide in [`docs/`](./docs/).
+I dettagli completi (configurazione di rete/GPIB, firewall, collegamento al client, servizio Windows) sono nelle guide di ciascun server: [`tbs2204b/docs/`](./tbs2204b/docs/) e [`hp-lab/docs/`](./hp-lab/docs/).
 
 ---
 
@@ -186,9 +189,7 @@ Il rapporto R_caldo/R_freddo misurato con la tensione **vera** è ~7:1, in linea
 | Documento | Contenuto |
 |---|---|
 | [Guida TBS2204B](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) | Setup completo del server oscilloscopio su Windows: rete, VISA, server, collegamento a Claude Desktop |
-| [Guida banco HP GPIB](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter, trasporto HTTP, servizio Windows, sicurezza |
-| [Guida progetto + GitHub](./docs/guida_progetto_mcp_strumentazione_github.md) | Struttura del repo, `.gitignore`, licenza, pubblicazione e workflow git/GitHub |
-| [Guida Claude Code](./docs/guida_claude_code_setup.md) | Installazione di Claude Code, GitHub MCP server, loop di sviluppo codice→commit→push |
+| [Guida banco HP GPIB](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter + DMM, trasporto HTTP, servizio Windows, sicurezza |
 
 ---
 
