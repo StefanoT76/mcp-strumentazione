@@ -32,7 +32,7 @@
 | Server | Instrument(s) | Physical transport | MCP transport | Docs |
 |---|---|---|---|---|
 | [`tbs2204b/`](./tbs2204b/) | Tektronix TBS2204B (oscilloscope) | Ethernet / LXI | stdio | [Guide](./tbs2204b/docs/guida_mcp_tbs2204b_windows.en.md) |
-| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (Contec board) | streamable-http | [Guide](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.en.md) |
+| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (Contec board) | streamable-http | [Guide](./hp-lab/docs/guida_mcp_gpib_multistrumento.en.md) |
 
 The two servers are independent: use one, both, or wire them into the same MCP-client session.
 
@@ -99,8 +99,8 @@ mcp-strumentazione/
 ├── hp-lab/
 │   ├── README.md
 │   ├── docs/
-│   │   ├── guida_mcp_gpib_multistrumento_V2.it.md
-│   │   └── guida_mcp_gpib_multistrumento_V2.en.md
+│   │   ├── guida_mcp_gpib_multistrumento.it.md
+│   │   └── guida_mcp_gpib_multistrumento.en.md
 │   ├── pyproject.toml
 │   ├── server.py
 │   ├── test_strumenti.py
@@ -198,7 +198,7 @@ The R_hot/R_cold ratio measured with the **true** voltage is ~7:1, in line with 
 | Document | Contents |
 |---|---|
 | [TBS2204B guide](./tbs2204b/docs/guida_mcp_tbs2204b_windows.en.md) | Full setup of the oscilloscope server on Windows: network, VISA, server, wiring to Claude Desktop |
-| [HP GPIB bench guide](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.en.md) | Multi-instrument GPIB/Contec server: PSU + e-load + counter + DMM, HTTP transport, Windows service, security |
+| [HP GPIB bench guide](./hp-lab/docs/guida_mcp_gpib_multistrumento.en.md) | Multi-instrument GPIB/Contec server: PSU + e-load + counter + DMM, HTTP transport, Windows service, security |
 
 ---
 
