@@ -1,49 +1,55 @@
-# MCP Strumentazione
+<div align="right">
 
-Server [Model Context Protocol](https://modelcontextprotocol.io/) per controllare strumentazione di laboratorio in linguaggio naturale da un client AI (Claude Desktop, Claude Code, o qualsiasi client MCP). Due banchi distinti, due trasporti, un'unica filosofia: esporre come *tool* MCP operazioni di alto livello (`measure`, `get_waveform`, `psu_set_voltage`, `psu_ramp_with_dmm`, ...) invece di lasciare l'AI a parlare SCPI grezzo.
+**[🇮🇹 Italiano](./README.it.md) · 🇬🇧 English**
 
-> Stato: progetto di laboratorio, funzionante su hardware reale. Le misure mostrate più sotto sono acquisizioni vere fatte attraverso questi server.
+</div>
+
+# MCP Instrumentation
+
+[Model Context Protocol](https://modelcontextprotocol.io/) servers to drive lab instruments in natural language from an AI client (Claude Desktop, Claude Code, or any MCP client). Two separate benches, two transports, one philosophy: expose high-level operations as MCP *tools* (`measure`, `get_waveform`, `psu_set_voltage`, `psu_ramp_with_dmm`, ...) instead of leaving the AI to speak raw SCPI.
+
+> Status: a lab project, running on real hardware. The measurements shown below are genuine acquisitions taken through these servers.
 
 ---
 
-## Indice
+## Table of contents
 
-- [Cosa c'è dentro](#cosa-cè-dentro)
-- [Architettura](#architettura)
-- [Struttura del repository](#struttura-del-repository)
+- [What's inside](#whats-inside)
+- [Architecture](#architecture)
+- [Repository layout](#repository-layout)
 - [Quick start](#quick-start)
-- [Esempi reali](#esempi-reali)
-  - [Oscilloscopio: rete elettrica su CH2](#oscilloscopio-rete-elettrica-su-ch2)
-  - [Banco HP: caratterizzazione di una lampada](#banco-hp-caratterizzazione-di-una-lampada)
-- [Documentazione](#documentazione)
-- [Sicurezza](#sicurezza)
-- [Licenza](#licenza)
+- [Real-world examples](#real-world-examples)
+  - [Oscilloscope: mains supply on CH2](#oscilloscope-mains-supply-on-ch2)
+  - [HP bench: characterizing a lamp](#hp-bench-characterizing-a-lamp)
+- [Documentation](#documentation)
+- [Security](#security)
+- [License](#license)
 
 ---
 
-## Cosa c'è dentro
+## What's inside
 
-| Server | Strumento/i | Trasporto fisico | Trasporto MCP | Doc |
+| Server | Instrument(s) | Physical transport | MCP transport | Docs |
 |---|---|---|---|---|
-| [`tbs2204b/`](./tbs2204b/) | Tektronix TBS2204B (oscilloscopio) | Ethernet / LXI | stdio | [Guida](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) |
-| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (scheda Contec) | streamable-http | [Guida](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) |
+| [`tbs2204b/`](./tbs2204b/) | Tektronix TBS2204B (oscilloscope) | Ethernet / LXI | stdio | [Guide](./tbs2204b/docs/guida_mcp_tbs2204b_windows.en.md) |
+| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (Contec board) | streamable-http | [Guide](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.en.md) |
 
-I due server sono indipendenti: puoi usarne uno solo, entrambi, o collegarli nella stessa sessione di un client MCP.
+The two servers are independent: use one, both, or wire them into the same MCP-client session.
 
 ---
 
-## Architettura
+## Architecture
 
 ```
                          ┌────────────────────────┐
                          │ Claude Desktop / Code  │
-                         │      (client MCP)      │
+                         │      (MCP client)      │
                          └──────────┬─────────────┘
-                                    │ MCP (stdio o HTTP)
+                                    │ MCP (stdio or HTTP)
                 ┌───────────────────┴───────────────────┐
                 │                                       │
         ┌───────▼────────┐                     ┌────────▼─────────┐
-        │ Server tbs2204b│                     │  Server hp-lab   │
+        │ tbs2204b server│                     │  hp-lab server   │
         │  (stdio)       │                     │ (streamable-http)│
         │  pyvisa-py     │                     │  KI-VISA+Contec  │
         └───────┬────────┘                     └────────┬─────────┘
@@ -55,35 +61,37 @@ I due server sono indipendenti: puoi usarne uno solo, entrambi, o collegarli nel
                              └─────────┘ └─────────┘ └─────────┘ └──────────┘
 ```
 
-Differenze di progetto fra i due server:
+Design differences between the two servers:
 
-| Aspetto | `tbs2204b` | `hp-lab` |
+| Aspect | `tbs2204b` | `hp-lab` |
 |---|---|---|
-| Backend VISA | `pyvisa-py` (Python puro) | KI-VISA di sistema |
-| Trasporto MCP | stdio (sottoprocesso del client) | streamable-http (server di rete, porta 8000) |
-| Avvio | lanciato dal client MCP | servizio Windows (NSSM) su PC-LAB |
-| Autenticazione | non necessaria (locale) | bearer token opzionale |
-| Vincolo NumPy | nessuno | `numpy<2` (CPU vecchie del PC-LAB) |
-| Stile dei tool | generici (`measure`, `get_waveform`, `scpi_*`) | per strumento (`psu_*`, `load_*`, `counter_*`, `dmm_*`) |
+| VISA backend | `pyvisa-py` (pure Python) | system KI-VISA |
+| MCP transport | stdio (client subprocess) | streamable-http (network server, port 8000) |
+| Startup | launched by the MCP client | Windows service (NSSM) on PC-LAB |
+| Authentication | not needed (local) | optional bearer token |
+| NumPy constraint | none | `numpy<2` (older PC-LAB CPUs) |
+| Tool style | generic (`measure`, `get_waveform`, `scpi_*`) | per-instrument (`psu_*`, `load_*`, `counter_*`, `dmm_*`) |
 
 ---
 
-## Struttura del repository
+## Repository layout
 
 ```
 mcp-strumentazione/
-├── README.md                  ← questo file
+├── README.md                  ← English (shown on the home page)
+├── README.it.md               ← Italian
 ├── LICENSE
 ├── .gitignore
 ├── docs/
-│   └── img/                   ← grafici generati dai dati di laboratorio
-│       ├── scope_mains_ch2.png
-│       ├── lamp_iv_psu_vs_dmm.png
-│       └── lamp_resistance_vs_voltage.png
+│   └── img/                   ← plots generated from lab data (IT + .en)
+│       ├── scope_mains_ch2.en.png
+│       ├── lamp_iv_psu_vs_dmm.en.png
+│       └── lamp_resistance_vs_voltage.en.png
 ├── tbs2204b/
 │   ├── README.md
 │   ├── docs/
-│   │   └── guida_mcp_tbs2204b_windows.md
+│   │   ├── guida_mcp_tbs2204b_windows.it.md
+│   │   └── guida_mcp_tbs2204b_windows.en.md
 │   ├── pyproject.toml
 │   ├── server.py
 │   ├── test_connessione.py
@@ -91,7 +99,8 @@ mcp-strumentazione/
 ├── hp-lab/
 │   ├── README.md
 │   ├── docs/
-│   │   └── guida_mcp_gpib_multistrumento_V2.md
+│   │   ├── guida_mcp_gpib_multistrumento_V2.it.md
+│   │   └── guida_mcp_gpib_multistrumento_V2.en.md
 │   ├── pyproject.toml
 │   ├── server.py
 │   ├── test_strumenti.py
@@ -104,103 +113,103 @@ mcp-strumentazione/
 
 ## Quick start
 
-Prerequisiti comuni: **Windows 10/11**, **Python 3.10+**, **PowerShell**, un **client MCP** (Claude Desktop o Claude Code).
+Common prerequisites: **Windows 10/11**, **Python 3.10+**, **PowerShell**, an **MCP client** (Claude Desktop or Claude Code).
 
-### Oscilloscopio (`tbs2204b`)
+### Oscilloscope (`tbs2204b`)
 
 ```powershell
 cd tbs2204b
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install "mcp[cli]" pyvisa pyvisa-py numpy
-$env:TBS2204B_IP = "192.168.0.75"   # IP statico dello strumento in lab
+$env:TBS2204B_IP = "192.168.0.75"   # the instrument's static IP in the lab
 $env:TBS2204B_BACKEND = "py"
-mcp dev .\server.py                  # test con MCP Inspector
+mcp dev .\server.py                  # test with the MCP Inspector
 ```
 
-### Banco HP (`hp-lab`)
+### HP bench (`hp-lab`)
 
 ```powershell
 cd hp-lab
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install "mcp[cli]" pyvisa "numpy<2" uvicorn   # NB: NON pyvisa-py, NON numpy>=2
+pip install "mcp[cli]" pyvisa "numpy<2" uvicorn   # NB: NOT pyvisa-py, NOT numpy>=2
 $env:PSU_ADDR = "5"; $env:LOAD_ADDR = "6"; $env:COUNTER_ADDR = "14"
-python .\server.py                                 # server HTTP su :8000
+python .\server.py                                 # HTTP server on :8000
 ```
 
-I dettagli completi (configurazione di rete/GPIB, firewall, collegamento al client, servizio Windows) sono nelle guide di ciascun server: [`tbs2204b/docs/`](./tbs2204b/docs/) e [`hp-lab/docs/`](./hp-lab/docs/).
+Full details (network/GPIB setup, firewall, client wiring, Windows service) are in each server's guides: [`tbs2204b/docs/`](./tbs2204b/docs/) and [`hp-lab/docs/`](./hp-lab/docs/).
 
 ---
 
-## Esempi reali
+## Real-world examples
 
-Tutte le misure qui sotto sono state acquisite **realmente** attraverso questi server, in sessioni di laboratorio guidate da Claude. I grafici sono ricostruiti dai dati numerici di quelle sessioni.
+Every measurement below was **actually** acquired through these servers, in lab sessions driven by Claude. The plots are reconstructed from the numerical data of those sessions.
 
-### Oscilloscopio: rete elettrica su CH2
+### Oscilloscope: mains supply on CH2
 
-Acquisizione di una forma d'onda con `get_waveform(channel=2)` e misure automatiche con `measure(...)` sul TBS2204B (S/N C021093, FW v1.32.147).
+A waveform acquired with `get_waveform(channel=2)` plus automatic measurements via `measure(...)` on the TBS2204B (S/N C021093, FW v1.32.147).
 
-![Waveform di rete su CH2 del TBS2204B](./docs/img/scope_mains_ch2.png)
+![Mains waveform on CH2 of the TBS2204B](./docs/img/scope_mains_ch2.en.png)
 
-Cosa si legge nei dati:
+What the data shows:
 
-- **50.00 Hz** tondi, periodo **20.00 ms**: rete elettrica (o sorgente agganciata in PLL alla rete).
-- **584 mV picco-picco**, **RMS 205 mV**. Il rapporto RMS/PK2PK = 0.351 cade a meno di tre millesimi dal valore teorico di una sinusoide pura (1/(2√2) ≈ 0.354): nessuna distorsione armonica apprezzabile.
-- **Media DC +0.11 mV** su ±292 mV di fondo: AC puro, nessun offset.
-- I micro-gradini verticali da ~4 mV sono i **256 livelli dell'ADC a 8 bit** dello strumento, visibili perché il segnale occupa circa 146 dei 256 livelli disponibili sulla scala usata.
+- A round **50.00 Hz**, period **20.00 ms**: the mains supply (or a source PLL-locked to it).
+- **584 mV peak-to-peak**, **205 mV RMS**. The RMS/PK2PK ratio of 0.351 lands within three thousandths of the theoretical value for a pure sine wave (1/(2√2) ≈ 0.354): no appreciable harmonic distortion.
+- **DC mean +0.11 mV** against a ±292 mV span: pure AC, no offset.
+- The ~4 mV vertical micro-steps are the instrument's **256 levels of the 8-bit ADC**, visible because the signal occupies roughly 146 of the 256 available levels at the scale used.
 
-> Nota tecnica emersa durante lo sviluppo: il trasferimento binario `RIBinary` con `WIDth 2` sul TBS2200 presentava un'incongruenza di byte order nel preamble. La soluzione adottata nel server è leggere a `WIDth 1` (nativo 8-bit, niente endianness) o in ASCII, eliminando ogni ambiguità di sign-extension.
+> Technical note that surfaced during development: the binary `RIBinary` transfer with `WIDth 2` on the TBS2200 had a byte-order inconsistency in the preamble. The server's fix is to read at `WIDth 1` (native 8-bit, no endianness) or in ASCII, removing any sign-extension ambiguity.
 
-### Banco HP: caratterizzazione di una lampada
+### HP bench: characterizing a lamp
 
-Rampa di tensione 0→12 V a passi da 1 V tramite il PSU HP 6632A, con misura simultanea della tensione **vera** ai morsetti della lampada tramite DVM (tool `psu_ramp_with_dmm`). Questo è l'esempio più istruttivo del progetto.
+A 0→12 V voltage ramp in 1 V steps via the HP 6632A PSU, with the **true** voltage at the lamp terminals measured simultaneously by the HP 3457A DMM (`psu_ramp_with_dmm` tool). This is the most instructive example in the project.
 
-![Curva I-V: PSU vs DMM](./docs/img/lamp_iv_psu_vs_dmm.png)
+![I-V curve: PSU vs DMM](./docs/img/lamp_iv_psu_vs_dmm.en.png)
 
-Le due curve raccontano perché in laboratorio si fa la **misura Kelvin** (4 fili). A parità di corrente, la tensione misurata dal DVM ai morsetti della lampada (verde) è sistematicamente più bassa di quella che il PSU crede di erogare (arancione), e il divario cresce con la corrente: è esattamente la caduta I·R sui cavi di alimentazione.
+The two curves illustrate why a lab does a **Kelvin (4-wire) measurement**. At the same current, the voltage measured by the DMM at the lamp terminals (green) is systematically lower than what the PSU thinks it is delivering (orange), and the gap grows with current: it is exactly the I·R drop across the supply leads.
 
-Con i cavi usati nella prima prova:
+With the leads used in the first run:
 
-| VSET | PSU VOUT | DMM (lampada) | ΔV cavi | I | R_cavi |
+| VSET | PSU VOUT | DMM (lamp) | ΔV leads | I | R_leads |
 |---|---|---|---|---|---|
 | 1 V | 1.000 V | 0.357 V | 0.64 V | 0.83 A | 0.77 Ω |
 | 6 V | 6.004 V | 4.330 V | 1.67 V | 2.12 A | 0.79 Ω |
 | 12 V | 11.995 V | **9.640 V** | **2.36 V** | 3.15 A | 0.75 Ω |
 
-A 12 V impostati, ~7.5 W finivano in calore sui soli cavi invece che nella lampada. Fidandosi del solo voltmetro interno del PSU si sarebbe concluso "lampada da 12 V / 37 W, R_caldo 3.8 Ω". La realtà misurata col DVM: **9.6 V / 30 W, R_caldo 3.06 Ω**.
+At 12 V set, ~7.5 W were dissipated as heat in the leads alone instead of in the lamp. Trusting the PSU's internal voltmeter only, one would have concluded "a 12 V / 37 W lamp, R_hot 3.8 Ω". The reality measured with the DMM: **9.6 V / 30 W, R_hot 3.06 Ω**.
 
-Sostituendo i cavi con altri di sezione maggiore, la R dei conduttori è crollata da 0.76 Ω a **0.033 Ω** (23× più bassa), il ΔV a 12 V si è ridotto a 0.11 V e la lampada ha finalmente ricevuto 11.88 V, raggiungendo il regime nominale (~42 W, R_caldo 3.38 Ω — compatibile con una **lampada automotive H4/H7**).
+Swapping the leads for thicker ones, the conductor resistance dropped from 0.76 Ω to **0.033 Ω** (23× lower), the ΔV at 12 V shrank to 0.11 V, and the lamp finally received 11.88 V, reaching its nominal regime (~42 W, R_hot 3.38 Ω — consistent with an **automotive H4/H7 bulb**).
 
-#### Il filamento di tungsteno
+#### The tungsten filament
 
-Calcolando R = V/I dalla tensione vera, si vede il comportamento da manuale del tungsteno: resistenza bassa da freddo, crescente con la temperatura.
+Computing R = V/I from the true voltage reveals textbook tungsten behaviour: low resistance when cold, rising with temperature.
 
-![Resistenza del filamento vs tensione](./docs/img/lamp_resistance_vs_voltage.png)
+![Filament resistance vs voltage](./docs/img/lamp_resistance_vs_voltage.en.png)
 
-Il rapporto R_caldo/R_freddo misurato con la tensione **vera** è ~7:1, in linea con la fisica del tungsteno. Lo stesso rapporto calcolato sulla tensione del PSU dava ~3:1, falsato dalla caduta sui cavi. Lezione classica di banco: per caratterizzazioni accurate, mai fidarsi del voltmetro interno del PSU quando i cavi non sono trascurabili.
+The R_hot/R_cold ratio measured with the **true** voltage is ~7:1, in line with the physics of tungsten. The same ratio computed from the PSU voltage gave ~3:1, skewed by the lead drop. A classic bench lesson: for accurate characterization, never trust the PSU's internal voltmeter when the leads are non-negligible.
 
-> Il tool `psu_ramp_with_dmm` esegue la rampa con dwell configurabile lato server (così il timing è esatto e indipendente dalla latenza MCP) e registra a ogni step sia `VOUT?`/`IOUT?` del PSU sia la lettura del DVM. Una chiamata, un dataset completo pronto per il grafico.
+> The `psu_ramp_with_dmm` tool runs the ramp with a server-side configurable dwell (so the timing is exact and independent of MCP latency) and records, at each step, both the PSU's `VOUT?`/`IOUT?` and the DMM reading. One call, one complete dataset ready to plot.
 
 ---
 
-## Documentazione
+## Documentation
 
-| Documento | Contenuto |
+| Document | Contents |
 |---|---|
-| [Guida TBS2204B](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) | Setup completo del server oscilloscopio su Windows: rete, VISA, server, collegamento a Claude Desktop |
-| [Guida banco HP GPIB](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter + DMM, trasporto HTTP, servizio Windows, sicurezza |
+| [TBS2204B guide](./tbs2204b/docs/guida_mcp_tbs2204b_windows.en.md) | Full setup of the oscilloscope server on Windows: network, VISA, server, wiring to Claude Desktop |
+| [HP GPIB bench guide](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.en.md) | Multi-instrument GPIB/Contec server: PSU + e-load + counter + DMM, HTTP transport, Windows service, security |
 
 ---
 
-## Sicurezza
+## Security
 
-- **Nessun segreto nel repo**: token, PAT e password vivono solo in `.env` locale (gitignored). Gli esempi vanno in `.env.example` con valori finti.
-- **Banco HP senza autenticazione = chiunque sulla LAN può comandare gli strumenti.** Il PSU eroga fino a 100 W e l'e-load ne dissipa fino a 300: una connessione non autorizzata può fare danni fisici. In LAN di laboratorio chiusa è in genere accettabile; altrimenti attiva il bearer token (`MCP_TOKEN`) e/o un reverse proxy con TLS. Dettagli nella guida HP.
-- **Validazione dei range** lato server: ogni tool che imposta tensioni/correnti rifiuta valori fuori dai limiti dello strumento, riducendo il rischio di comandi pericolosi.
+- **No secrets in the repo**: tokens, PATs and passwords live only in a local `.env` (gitignored). Examples go in `.env.example` with dummy values.
+- **HP bench with no authentication = anyone on the LAN can command the instruments.** The PSU sources up to 100 W and the e-load sinks up to 300: an unauthorized connection can cause physical damage. On a closed lab LAN this is usually acceptable; otherwise enable the bearer token (`MCP_TOKEN`) and/or a reverse proxy with TLS. See the HP guide for details.
+- **Server-side range validation**: every tool that sets voltages/currents rejects values outside the instrument's limits, reducing the risk of dangerous commands.
 
 ---
 
-## Licenza
+## License
 
-Vedi [LICENSE](./LICENSE).
+See [LICENSE](./LICENSE).
