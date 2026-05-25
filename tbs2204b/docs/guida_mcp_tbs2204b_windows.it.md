@@ -88,7 +88,7 @@ Hai due opzioni equivalenti per la cartella di lavoro:
 - **A. Stai usando il repo del laboratorio.** Entra nella sottocartella `tbs2204b/`: il file `server.py` è già lì.
 
   ```powershell
-  cd "C:\Users\<tuo-utente>\Bioskin Italia S.r.l\Assistenza - Assistenza\Server-MCP-strumentazione\tbs2204b"
+  cd "C:\Users\<tuo-utente>\..\Server-MCP-strumentazione\tbs2204b"
   ```
 
 - **B. Parti da zero, senza repo.** Crea una cartella di lavoro nella tua home, e in seguito copierai `server.py` da quella del repo.
