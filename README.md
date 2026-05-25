@@ -213,3 +213,19 @@ The R_hot/R_cold ratio measured with the **true** voltage is ~7:1, in line with 
 ## License
 
 See [LICENSE](./LICENSE).
+
+## ⚠️ Disclaimer
+
+This software controls **real laboratory instruments**, including a power
+supply and an electronic load able to source or dissipate hundreds of watts.
+A wrong command, a fault, or a network/automation error can damage equipment
+or the device under test, and create a risk of injury or fire.
+
+The software is provided **"as is", without warranty of any kind** (see
+[LICENSE](./LICENSE)). The authors and contributors accept no liability for any
+damage, loss, or injury arising from its use. **You are solely responsible for
+operating your instruments safely**: verify every command, respect each
+instrument's ratings, never leave automated runs unattended, and make sure your
+wiring and setup are safe.
+
+By using this software you accept these terms.
