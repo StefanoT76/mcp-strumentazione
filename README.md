@@ -26,7 +26,7 @@ Server [Model Context Protocol](https://modelcontextprotocol.io/) per controllar
 | Server | Strumento/i | Trasporto fisico | Trasporto MCP | Doc |
 |---|---|---|---|---|
 | [`tbs2204b/`](./tbs2204b/) | Tektronix TBS2204B (oscilloscopio) | Ethernet / LXI | stdio | [Guida](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) |
-| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (scheda Contec) | streamable-http | [Guida](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.md) |
+| [`hp-lab/`](./hp-lab/) | HP 6632A (PSU) · HP 6060B (e-load) · HP 5334B (counter) · HP 3457A (DMM) | GPIB (scheda Contec) | streamable-http | [Guida](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) |
 
 I due server sono indipendenti: puoi usarne uno solo, entrambi, o collegarli nella stessa sessione di un client MCP.
 
@@ -189,7 +189,7 @@ Il rapporto R_caldo/R_freddo misurato con la tensione **vera** è ~7:1, in linea
 | Documento | Contenuto |
 |---|---|
 | [Guida TBS2204B](./tbs2204b/docs/guida_mcp_tbs2204b_windows.md) | Setup completo del server oscilloscopio su Windows: rete, VISA, server, collegamento a Claude Desktop |
-| [Guida banco HP GPIB](./hp-lab/docs/guida_mcp_gpib_multistrumento_V2.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter + DMM, trasporto HTTP, servizio Windows, sicurezza |
+| [Guida banco HP GPIB](./hp-lab/docs/guida_mcp_gpib_multistrumento.md) | Server multi-strumento via GPIB Contec: PSU + e-load + counter + DMM, trasporto HTTP, servizio Windows, sicurezza |
 
 ---
 
