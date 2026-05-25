@@ -72,7 +72,7 @@ Hai due opzioni equivalenti per la cartella di lavoro:
 - **A. Stai usando il repo del laboratorio.** Entra nella sottocartella `hp-lab/`: i file `server.py` e `test_strumenti.py` sono già lì.
 
   ```powershell
-  cd "C:\Users\<tuo-utente>\Bioskin Italia S.r.l\Assistenza - Assistenza\Server-MCP-strumentazione\hp-lab"
+  cd "C:\Users\<tuo-utente>\..\Server-MCP-strumentazione\hp-lab"
   ```
 
 - **B. Parti da zero, senza repo.** Crea una cartella di lavoro nella tua home, e in seguito copierai `server.py` e `test_strumenti.py` da quella del repo.
