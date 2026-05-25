@@ -213,3 +213,20 @@ Il rapporto R_caldo/R_freddo misurato con la tensione **vera** è ~7:1, in linea
 ## Licenza
 
 Vedi [LICENSE](./LICENSE).
+
+## ⚠️ Avvertenza
+
+Questo software controlla **strumentazione di laboratorio reale**, incluso un
+alimentatore e un carico elettronico capaci di erogare o dissipare centinaia di
+watt. Un comando errato, un guasto o un errore di rete/automazione possono
+danneggiare gli strumenti o il dispositivo in prova, con rischio di lesioni o
+incendio.
+
+Il software è fornito **"così com'è", senza alcuna garanzia** (vedi
+[LICENSE](./LICENSE)). Gli autori e i contributori non si assumono alcuna
+responsabilità per danni, perdite o lesioni derivanti dall'uso. **L'utente è
+l'unico responsabile dell'uso sicuro degli strumenti**: verifica ogni comando,
+rispetta i limiti di ogni strumento, non lasciare mai incustodite le sequenze
+automatiche e assicurati che cablaggio e setup siano sicuri.
+
+Usando questo software accetti questi termini.
